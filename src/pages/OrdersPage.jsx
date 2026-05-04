@@ -3,13 +3,16 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Package } from "lucide-react";
 import { ORDER_STATUS_OPTIONS, useShop } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../context/I18nContext";
 import { formatTenge } from "../utils/money";
 
-function statusLabel(v) {
-  return ORDER_STATUS_OPTIONS.find((o) => o.value === v)?.label ?? v;
+function statusLabel(v, t) {
+  const opt = ORDER_STATUS_OPTIONS.find((o) => o.value === v);
+  return opt ? t(opt.labelKey) : v;
 }
 
 export default function OrdersPage() {
+  const { t, dateLocale } = useI18n();
   const { customer } = useAuth();
   const { orders } = useShop();
   const [params] = useSearchParams();
@@ -24,15 +27,13 @@ export default function OrdersPage() {
     return (
       <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center shadow-sm">
         <Package className="mx-auto h-12 w-12 text-stone-300" />
-        <p className="mt-4 text-lg text-stone-700">Заказов пока нет.</p>
-        <p className="mt-2 text-sm text-stone-500">
-          Оформите заказ из корзины (нужна авторизация) — здесь появятся только ваши покупки.
-        </p>
+        <p className="mt-4 text-lg text-stone-700">{t("orders_empty_title")}</p>
+        <p className="mt-2 text-sm text-stone-500">{t("orders_empty_lead")}</p>
         <Link
           to="/catalog"
           className="mt-6 inline-flex min-h-[48px] items-center justify-center rounded-full border border-stone-200 bg-stone-50 px-8 text-sm font-medium text-stone-800 hover:bg-stone-100"
         >
-          В каталог
+          {t("orders_to_catalog")}
         </Link>
       </div>
     );
@@ -40,10 +41,8 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-900">Мои заказы</h1>
-      <p className="mt-2 text-sm text-stone-600">
-        Учётная запись: <span className="font-medium text-stone-800">{customer?.email}</span>. Суммы в тенге (KZT).
-      </p>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{t("orders_title")}</h1>
+      <p className="mt-2 text-sm text-stone-600">{t("orders_subtitle", { email: customer?.email ?? "" })}</p>
 
       <ul className="mt-8 space-y-4">
         {sorted.map((o) => {
@@ -59,13 +58,13 @@ export default function OrdersPage() {
                 <div>
                   <p className="font-mono text-sm font-medium text-rose-700">{o.id}</p>
                   <p className="mt-1 text-xs text-stone-500">
-                    {new Date(o.createdAt).toLocaleString("kk-KZ", {
+                    {new Date(o.createdAt).toLocaleString(dateLocale, {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })}
                   </p>
                 </div>
-                <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-800">{statusLabel(o.status)}</span>
+                <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-800">{statusLabel(o.status, t)}</span>
               </div>
               <p className="mt-3 text-sm text-stone-600">
                 {o.customer.name} · {o.customer.phone}

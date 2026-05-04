@@ -1,5 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { I18nProvider } from "./context/I18nContext";
 import { ShopProvider } from "./context/ShopContext";
 import Layout from "./components/Layout";
 import RequireAdmin from "./components/RequireAdmin";
@@ -11,6 +12,9 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrdersPage from "./pages/OrdersPage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
+import DealsPage from "./pages/DealsPage";
+import BrandsPage from "./pages/BrandsPage";
+import NewArrivalsPage from "./pages/NewArrivalsPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
@@ -20,9 +24,10 @@ import RequireCustomer from "./components/RequireCustomer";
 export default function App() {
   return (
     <HashRouter>
-      <AuthProvider>
-        <ShopProvider>
-          <Routes>
+      <I18nProvider>
+        <AuthProvider>
+          <ShopProvider>
+            <Routes>
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route
               path="/admin"
@@ -40,6 +45,9 @@ export default function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
               <Route path="catalog" element={<CatalogPage />} />
+              <Route path="deals" element={<DealsPage />} />
+              <Route path="brands" element={<BrandsPage />} />
+              <Route path="new" element={<NewArrivalsPage />} />
               <Route path="product/:id" element={<ProductPage />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="register" element={<RegisterPage />} />
@@ -62,9 +70,10 @@ export default function App() {
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
-          </Routes>
-        </ShopProvider>
-      </AuthProvider>
+            </Routes>
+          </ShopProvider>
+        </AuthProvider>
+      </I18nProvider>
     </HashRouter>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../context/I18nContext";
 import { formatTenge } from "../utils/money";
 
 const empty = {
@@ -14,11 +15,12 @@ const empty = {
 };
 
 export default function CheckoutPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { customer } = useAuth();
   const { cartLinesDetailed, cartTotal, placeOrder } = useShop();
   const [form, setForm] = useState(empty);
-  const [err, setErr] = useState("");
+  const [errKey, setErrKey] = useState("");
 
   useEffect(() => {
     if (!customer) return;
@@ -33,9 +35,9 @@ export default function CheckoutPage() {
   if (cartLinesDetailed.length === 0) {
     return (
       <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center shadow-sm">
-        <p className="text-stone-700">Нечего оформлять — корзина пуста.</p>
+        <p className="text-stone-700">{t("checkout_empty")}</p>
         <Link to="/catalog" className="mt-4 inline-block font-medium text-rose-600 hover:underline">
-          В каталог
+          {t("checkout_to_catalog")}
         </Link>
       </div>
     );
@@ -43,17 +45,17 @@ export default function CheckoutPage() {
 
   const set = (k) => (e) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
-    setErr("");
+    setErrKey("");
   };
 
   const submit = (e) => {
     e.preventDefault();
     if (!customer) {
-      setErr("Сессия покупателя недоступна. Войдите снова.");
+      setErrKey("checkout_err_session");
       return;
     }
     if (!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.city.trim() || !form.address.trim()) {
-      setErr("Заполните обязательные поля: имя, email, телефон, город, адрес.");
+      setErrKey("checkout_err_required");
       return;
     }
     const order = placeOrder(
@@ -68,25 +70,24 @@ export default function CheckoutPage() {
       customer.id
     );
     if (order) navigate(`/orders?highlight=${encodeURIComponent(order.id)}`);
-    else setErr("Не удалось создать заказ.");
+    else setErrKey("checkout_err_place_failed");
   };
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-900">Оформление заказа</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{t("checkout_title")}</h1>
       <p className="mt-2 text-sm text-stone-600">
-        Покупатель: <span className="font-medium text-stone-800">{customer?.email}</span>. К оплате:{" "}
-        <span className="font-semibold text-stone-900">{formatTenge(cartTotal)}</span> (KZT)
+        {t("checkout_subtitle", { email: customer?.email ?? "", total: formatTenge(cartTotal) })}
       </p>
 
       <form onSubmit={submit} className="mt-8 space-y-4">
-        {err && (
-          <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">{err}</p>
+        {errKey && (
+          <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">{t(errKey)}</p>
         )}
 
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="name">
-            Имя и фамилия *
+            {t("checkout_name")}
           </label>
           <input
             id="name"
@@ -98,7 +99,7 @@ export default function CheckoutPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="email">
-            Email *
+            {t("checkout_email")}
           </label>
           <input
             id="email"
@@ -111,7 +112,7 @@ export default function CheckoutPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="phone">
-            Телефон *
+            {t("checkout_phone")}
           </label>
           <input
             id="phone"
@@ -124,7 +125,7 @@ export default function CheckoutPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="city">
-            Город *
+            {t("checkout_city")}
           </label>
           <input
             id="city"
@@ -136,7 +137,7 @@ export default function CheckoutPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="address">
-            Адрес доставки *
+            {t("checkout_address")}
           </label>
           <textarea
             id="address"
@@ -149,7 +150,7 @@ export default function CheckoutPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="comment">
-            Комментарий к заказу
+            {t("checkout_comment")}
           </label>
           <textarea
             id="comment"
@@ -164,7 +165,7 @@ export default function CheckoutPage() {
           type="submit"
           className="w-full min-h-[52px] rounded-full bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)] text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition hover:scale-[1.01]"
         >
-          Подтвердить заказ
+          {t("checkout_submit")}
         </button>
       </form>
     </div>

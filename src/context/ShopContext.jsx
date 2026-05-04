@@ -4,13 +4,14 @@ import { INITIAL_PRODUCTS } from "../data/products";
 const CART_KEY = "glowluxe_cart_v2_kzt";
 const ORDERS_KEY = "glowluxe_orders_v3_kzt";
 const PRODUCTS_KEY = "glowluxe_products_v1";
+const REVIEWS_KEY = "glowluxe_reviews_v1";
 
 export const ORDER_STATUS_OPTIONS = [
-  { value: "new", label: "Новый" },
-  { value: "processing", label: "В обработке" },
-  { value: "shipped", label: "Отправлен" },
-  { value: "delivered", label: "Доставлен" },
-  { value: "cancelled", label: "Отменён" },
+  { value: "new", labelKey: "order_status_new" },
+  { value: "processing", labelKey: "order_status_processing" },
+  { value: "shipped", labelKey: "order_status_shipped" },
+  { value: "delivered", labelKey: "order_status_delivered" },
+  { value: "cancelled", labelKey: "order_status_cancelled" },
 ];
 
 function readStorage(key, fallback) {
@@ -45,6 +46,7 @@ export function ShopProvider({ children }) {
     if (Array.isArray(saved) && saved.length > 0) return saved;
     return cloneInitialProducts();
   });
+  const [reviewsByProduct, setReviewsByProduct] = useState(() => readStorage(REVIEWS_KEY, {}));
 
   useEffect(() => {
     writeStorage(CART_KEY, cart);
@@ -57,6 +59,10 @@ export function ShopProvider({ children }) {
   useEffect(() => {
     writeStorage(PRODUCTS_KEY, products);
   }, [products]);
+
+  useEffect(() => {
+    writeStorage(REVIEWS_KEY, reviewsByProduct);
+  }, [reviewsByProduct]);
 
   const getProductById = useCallback((id) => products.find((p) => p.id === id), [products]);
 
@@ -165,6 +171,33 @@ export function ShopProvider({ children }) {
     );
   }, []);
 
+  const getReviewsForProduct = useCallback(
+    (productId) => {
+      const list = reviewsByProduct[productId];
+      return Array.isArray(list) ? list : [];
+    },
+    [reviewsByProduct]
+  );
+
+  const addReviewForProduct = useCallback((productId, payload) => {
+    const author = String(payload?.author ?? "").trim();
+    const comment = String(payload?.comment ?? "").trim();
+    const rating = Number(payload?.rating ?? 0);
+    if (!author || !comment || !Number.isFinite(rating) || rating < 1 || rating > 5) return false;
+    const review = {
+      id: `RVW-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+      author,
+      comment,
+      rating: Math.round(rating),
+      createdAt: new Date().toISOString(),
+    };
+    setReviewsByProduct((prev) => {
+      const current = Array.isArray(prev[productId]) ? prev[productId] : [];
+      return { ...prev, [productId]: [review, ...current] };
+    });
+    return true;
+  }, []);
+
   const value = useMemo(
     () => ({
       products,
@@ -181,6 +214,8 @@ export function ShopProvider({ children }) {
       placeOrder,
       updateOrderStatus,
       updateProduct,
+      getReviewsForProduct,
+      addReviewForProduct,
     }),
     [
       products,
@@ -197,6 +232,8 @@ export function ShopProvider({ children }) {
       placeOrder,
       updateOrderStatus,
       updateProduct,
+      getReviewsForProduct,
+      addReviewForProduct,
     ]
   );
 

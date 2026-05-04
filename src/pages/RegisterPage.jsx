@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../context/I18nContext";
 
 export default function RegisterPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { registerCustomer, isCustomer } = useAuth();
   const [name, setName] = useState("");
@@ -10,23 +12,23 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [err, setErr] = useState("");
+  const [errKey, setErrKey] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (isCustomer) return <Navigate to="/catalog" replace />;
 
   const submit = async (e) => {
     e.preventDefault();
-    setErr("");
+    setErrKey("");
     if (password !== confirm) {
-      setErr("Пароли не совпадают.");
+      setErrKey("auth_password_mismatch");
       return;
     }
     setLoading(true);
     const res = await registerCustomer({ name, email, password, phone });
     setLoading(false);
     if (!res.ok) {
-      setErr(res.error);
+      setErrKey(res.errorKey || "auth_required_fields");
       return;
     }
     navigate("/catalog", { replace: true });
@@ -34,16 +36,14 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-900">Регистрация</h1>
-      <p className="mt-2 text-sm text-stone-600">
-        Создайте аккаунт покупателя — оформление заказов и история покупок привяжутся к вашему профилю.
-      </p>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{t("register_title")}</h1>
+      <p className="mt-2 text-sm text-stone-600">{t("register_lead")}</p>
 
       <form onSubmit={submit} className="mt-8 space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        {err && <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">{err}</p>}
+        {errKey && <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">{t(errKey)}</p>}
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="reg-name">
-            Имя и фамилия *
+            {t("register_name")}
           </label>
           <input
             id="reg-name"
@@ -56,7 +56,7 @@ export default function RegisterPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="reg-email">
-            Email *
+            {t("register_email")}
           </label>
           <input
             id="reg-email"
@@ -70,7 +70,7 @@ export default function RegisterPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="reg-phone">
-            Телефон
+            {t("register_phone")}
           </label>
           <input
             id="reg-phone"
@@ -83,7 +83,7 @@ export default function RegisterPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="reg-pw">
-            Пароль * (не менее 6 символов)
+            {t("register_pw_min")}
           </label>
           <input
             id="reg-pw"
@@ -98,7 +98,7 @@ export default function RegisterPage() {
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-stone-500" htmlFor="reg-pw2">
-            Повтор пароля *
+            {t("register_confirm")}
           </label>
           <input
             id="reg-pw2"
@@ -115,12 +115,12 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full min-h-[48px] rounded-full bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)] text-sm font-semibold text-white shadow-md disabled:opacity-60"
         >
-          {loading ? "Создание…" : "Зарегистрироваться"}
+          {loading ? t("register_loading") : t("register_submit")}
         </button>
         <p className="text-center text-sm text-stone-600">
-          Уже есть аккаунт?{" "}
+          {t("register_have_account")}{" "}
           <Link to="/login" className="font-medium text-rose-600 hover:underline">
-            Войти
+            {t("register_sign_in")}
           </Link>
         </p>
       </form>

@@ -2,25 +2,27 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Shield } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useI18n } from "../../context/I18nContext";
 
 export default function AdminLoginPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { loginAdmin, isAdmin } = useAuth();
   const [email, setEmail] = useState("admin@glowluxe.kz");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
+  const [errKey, setErrKey] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (isAdmin) return <Navigate to="/admin/orders" replace />;
 
   const submit = async (e) => {
     e.preventDefault();
-    setErr("");
+    setErrKey("");
     setLoading(true);
     const res = await loginAdmin(email, password);
     setLoading(false);
     if (!res.ok) {
-      setErr(res.error);
+      setErrKey(res.errorKey || "auth_wrong_password");
       return;
     }
     navigate("/admin/orders", { replace: true });
@@ -44,7 +46,9 @@ export default function AdminLoginPage() {
         </div>
 
         <form onSubmit={submit} className="mt-8 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-          {err && <p className="rounded-lg border border-rose-400/40 bg-rose-500/20 px-3 py-2 text-sm text-rose-100">{err}</p>}
+          {errKey && (
+            <p className="rounded-lg border border-rose-400/40 bg-rose-500/20 px-3 py-2 text-sm text-rose-100">{t(errKey)}</p>
+          )}
           <div>
             <label className="mb-1 block text-xs font-medium text-white/50" htmlFor="adm-email">
               Email администратора

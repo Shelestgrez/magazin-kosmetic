@@ -72,9 +72,9 @@ export function AuthProvider({ children }) {
   const registerCustomer = useCallback(
     async ({ email, password, name, phone }) => {
       const em = email.trim().toLowerCase();
-      if (!em || !password || !name.trim()) return { ok: false, error: "Заполните все обязательные поля." };
-      if (password.length < 6) return { ok: false, error: "Пароль не короче 6 символов." };
-      if (users.some((u) => u.email.toLowerCase() === em)) return { ok: false, error: "Этот email уже зарегистрирован." };
+      if (!em || !password || !name.trim()) return { ok: false, errorKey: "auth_required_fields" };
+      if (password.length < 6) return { ok: false, errorKey: "auth_password_short" };
+      if (users.some((u) => u.email.toLowerCase() === em)) return { ok: false, errorKey: "auth_email_taken" };
       const passwordHash = await hashPassword(password);
       const user = {
         id: `user_${Date.now().toString(36)}`,
@@ -98,9 +98,9 @@ export function AuthProvider({ children }) {
     async (email, password) => {
       const em = email.trim().toLowerCase();
       const user = users.find((u) => u.email.toLowerCase() === em && u.role === "customer");
-      if (!user) return { ok: false, error: "Пользователь не найден." };
+      if (!user) return { ok: false, errorKey: "auth_user_not_found" };
       const ok = await verifyPassword(password, user.passwordHash);
-      if (!ok) return { ok: false, error: "Неверный пароль." };
+      if (!ok) return { ok: false, errorKey: "auth_wrong_password" };
       setCustomerId(user.id);
       writeSession(CUSTOMER_SESSION_KEY, user.id);
       return { ok: true, user };
@@ -117,9 +117,9 @@ export function AuthProvider({ children }) {
     async (email, password) => {
       const em = email.trim().toLowerCase();
       const user = users.find((u) => u.email.toLowerCase() === em && u.role === "admin");
-      if (!user) return { ok: false, error: "Администратор с таким email не найден." };
+      if (!user) return { ok: false, errorKey: "auth_admin_not_found" };
       const ok = await verifyPassword(password, user.passwordHash);
-      if (!ok) return { ok: false, error: "Неверный пароль." };
+      if (!ok) return { ok: false, errorKey: "auth_wrong_password" };
       setAdminId(user.id);
       writeSession(ADMIN_SESSION_KEY, user.id);
       return { ok: true, user };

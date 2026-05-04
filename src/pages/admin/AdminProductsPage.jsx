@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { Save } from "lucide-react";
 import { CATEGORIES } from "../../data/products";
 import { useShop } from "../../context/ShopContext";
+import { useI18n } from "../../context/I18nContext";
 import { formatTenge } from "../../utils/money";
 
 function Row({ product, onSave }) {
+  const { t } = useI18n();
   const [name, setName] = useState(product.name);
   const [brand, setBrand] = useState(product.brand);
   const [price, setPrice] = useState(String(product.price));
@@ -55,7 +57,7 @@ function Row({ product, onSave }) {
         >
           {CATEGORIES.map((c) => (
             <option key={c.id} value={c.id} className="bg-slate-900">
-              {c.label}
+              {t(`cat_${c.id}`)}
             </option>
           ))}
         </select>

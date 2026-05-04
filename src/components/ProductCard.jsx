@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
+import { useI18n } from "../context/I18nContext";
 import { formatTenge } from "../utils/money";
 
 export default function ProductCard({ product }) {
+  const { t } = useI18n();
+  const isNew = product.id.includes("set") || product.id.includes("mask") || product.id.includes("peptide");
+  const isPromo = product.price <= 9000;
+
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-md shadow-stone-200/60 transition hover:-translate-y-1 hover:border-rose-200 hover:shadow-lg hover:shadow-rose-100/80">
       <Link
@@ -17,7 +22,17 @@ export default function ProductCard({ product }) {
         />
         {product.stock < 8 && (
           <span className="absolute left-3 top-3 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow">
-            Мало на складе
+            {t("badge_low_stock")}
+          </span>
+        )}
+        {isNew && (
+          <span className="absolute right-3 top-3 rounded-full bg-emerald-500 px-2.5 py-1 text-xs font-semibold text-white shadow">
+            {t("badge_new")}
+          </span>
+        )}
+        {isPromo && (
+          <span className="absolute bottom-3 left-3 rounded-full bg-rose-600 px-2.5 py-1 text-xs font-semibold text-white shadow">
+            {t("badge_sale")}
           </span>
         )}
       </Link>
@@ -35,7 +50,7 @@ export default function ProductCard({ product }) {
           <Link
             to={`/product/${product.id}`}
             className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-600 transition hover:scale-105 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
-            aria-label="Подробнее"
+            aria-label={t("aria_product_details")}
           >
             <ShoppingBag className="h-4 w-4" />
           </Link>
