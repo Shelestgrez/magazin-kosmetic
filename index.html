@@ -12,6 +12,19 @@
   </head>
   <body class="min-h-screen bg-[#faf7fc] text-stone-900 antialiased">
     <div id="root"></div>
+    <script>
+      // GitHub Pages SPA fallback: restore original route after 404 redirect.
+      (function (location) {
+        if (location.search.startsWith("?/")) {
+          const route = location.search
+            .slice(2)
+            .replace(/~and~/g, "&");
+          const cleanPath = location.pathname.replace(/\/$/, "");
+          const nextUrl = `${cleanPath}/${route}${location.hash}`;
+          window.history.replaceState(null, "", nextUrl);
+        }
+      })(window.location);
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

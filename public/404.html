@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting…</title>
+    <script>
+      // GitHub Pages serves this file for unknown routes.
+      // Redirect back to index.html while preserving the SPA path.
+      const segmentCount = 1; // repo name segment: /magazin-kosmetic
+      const { protocol, hostname, port, pathname, search, hash } = window.location;
+      const origin = `${protocol}//${hostname}${port ? `:${port}` : ""}`;
+      const repoBase = pathname.split("/").slice(0, 1 + segmentCount).join("/");
+      const route = pathname
+        .slice(1)
+        .split("/")
+        .slice(segmentCount)
+        .join("/")
+        .replace(/&/g, "~and~");
+      const query = search ? `&${search.slice(1).replace(/&/g, "~and~")}` : "";
+      window.location.replace(`${origin}${repoBase}/?/${route}${query}${hash}`);
+    </script>
+  </head>
+  <body></body>
+</html>
