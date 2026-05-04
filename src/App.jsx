@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ShopProvider } from "./context/ShopContext";
 import Layout from "./components/Layout";
@@ -19,7 +19,7 @@ import RequireCustomer from "./components/RequireCustomer";
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <HashRouter>
       <AuthProvider>
         <ShopProvider>
           <Routes>
@@ -65,6 +65,6 @@ export default function App() {
           </Routes>
         </ShopProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
