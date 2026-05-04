@@ -33,6 +33,11 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Build fingerprint
+        run: |
+          echo "Built at UTC $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          test -f dist/index.html && head -n 20 dist/index.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
