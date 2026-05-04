@@ -5,19 +5,17 @@
     <title>Redirecting…</title>
     <script>
       // GitHub Pages serves this file for unknown routes.
-      // Redirect back to index.html while preserving the SPA path.
+      // Redirect unknown paths to HashRouter format: /#/...
       const segmentCount = 1; // repo name segment: /magazin-kosmetic
       const { protocol, hostname, port, pathname, search, hash } = window.location;
       const origin = `${protocol}//${hostname}${port ? `:${port}` : ""}`;
-      const repoBase = pathname.split("/").slice(0, 1 + segmentCount).join("/");
-      const route = pathname
-        .slice(1)
-        .split("/")
-        .slice(segmentCount)
-        .join("/")
-        .replace(/&/g, "~and~");
-      const query = search ? `&${search.slice(1).replace(/&/g, "~and~")}` : "";
-      window.location.replace(`${origin}${repoBase}/?/${route}${query}${hash}`);
+      const parts = pathname.replace(/^\/+/, "").split("/");
+      const repo = parts.slice(0, segmentCount).join("/");
+      const route = parts.slice(segmentCount).join("/");
+      const query = search || "";
+      const hashPart = hash || "";
+      const target = route ? `#/${route}${query}${hashPart}` : `#/${query}${hashPart}`;
+      window.location.replace(`${origin}/${repo}/${target}`);
     </script>
   </head>
   <body></body>
